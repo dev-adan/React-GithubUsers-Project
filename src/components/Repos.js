@@ -7,6 +7,7 @@ const Repos = () => {
   const {repos} = React.useContext(GithubContext);
 
   let languages = repos.reduce((total,item) =>{
+
     const {language} = item;
     if(!language) return total;
 
@@ -18,13 +19,26 @@ const Repos = () => {
     return total;
   },{})
 
-  console.log(languages)
+
  languages = Object.values(languages).sort((a,b) => {
    return b.value - a.value;
  }).slice(0,5)
  
 
+ let {stars,forks} = repos.reduce((total,item) => {
+   const {stargazers_count,name,forks} = item;
 
+   total.stars[stargazers_count] = {label : name,value : stargazers_count };
+
+   total.forks[forks] = {label : name,value : forks}
+
+
+  return total;
+
+ },{stars : {}, forks : {}})
+ stars = Object.values(stars).slice(0,5)
+ forks = Object.values(forks).slice(0,5)
+ console.log(stars)
 
 
   const chartData = [
@@ -35,9 +49,9 @@ const Repos = () => {
     <Wrapper className='section-center'>
        {/* <ExampleChart data={chartData}/> */}
        <Pie3D data={chartData}/>
-       <div></div>
-         <Doughnut2D data={chartData}/>
-       <div></div>
+       <Column3D data={stars}/>
+       <Doughnut2D data={chartData}/>
+       <Bar3D data={forks}/>
     </Wrapper>
 
   </section>
