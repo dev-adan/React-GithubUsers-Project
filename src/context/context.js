@@ -23,14 +23,29 @@ const GithubProvider = ({children}) => {
         setLoading(true);
         const response = await axios(`${rootUrl}/users/${user}`).catch(error => console.log(error));
         if (response){
-            setGithubUser(response.data)
             
+            setGithubUser(response.data)
+        
             const {login,followers_url} = response.data;
 
             //repose
-            axios(`${rootUrl}/users/${login}/repos?per_page=100`).then(response => setRepos(response.data) )
+            // axios(`${rootUrl}/users/${login}/repos?per_page=100`).then(response => setRepos(response.data) )
             //followers
-            axios(`${followers_url}?per_page=100`).then(response => Setfollowers(response.data) )
+            // axios(`${followers_url}?per_page=100`).then(response => Setfollowers(response.data) )
+
+            //repose
+
+            await Promise.allSettled([axios(`${rootUrl}/users/${login}/repos?per_page=100`),axios(`${followers_url}?per_page=100`)]).then((results) => {
+                console.log(results)
+                const [repos,followers] = results;
+                const status = 'fulfilled';
+                if(repos.status === status){
+                    setRepos(repos.value.data)
+                }
+                if(followers.status === status){
+                    Setfollowers(followers.value.data)
+                }
+            }).catch(error => console.log(error))
 
         }else{
             toggleError(true,'User not found...')
